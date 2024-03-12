@@ -1,4 +1,5 @@
 ### Assignment for an internship in VK android
+To create the application, I used Kotlin, Jetpack Compose, Dagger - Hilt, Retrofit2, Okhttp3, Coroutines, Coil
 
 The general view. The app downloads 20 items each when the user reaches the end of the list
 
