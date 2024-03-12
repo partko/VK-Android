@@ -4,7 +4,7 @@ The general view. The app downloads 20 items each when the user reaches the end 
 
 <img src="https://github.com/partko/VK-Android/blob/main/Screens/screen0.jpg" width="300" />
 
-At startup, all categories are loaded in the form of chips, when a category is selected, a request is sent and the application displays only products of this category. When canceling a category, the old list with a certain number of shipped items is returned
+At startup, all categories are loaded in the form of chips, when a category is selected, a request is sent and the application displays only products of this category. When canceling a category, the old list with a certain number of uploaded items is returned
 
 <img src="https://github.com/partko/VK-Android/blob/main/Screens/screen1.jpg" width="300" />
 

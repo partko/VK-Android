@@ -25,9 +25,12 @@ import com.example.androidvk.ui.theme.Crimson
 @Composable
 fun ChipGroupCompose(
     chipList: List<String> = listOf(),
-    viewModel: ProductListViewModel
+    viewModel: ProductListViewModel,
+    selectedChip: MutableState<String>
 ) {
-    var selected by remember { mutableStateOf("") }
+    //var selected by remember { mutableStateOf("") }
+    //var selected by remember { mutableStateOf(selectedChip) }
+    var selected by remember { selectedChip }
     Row(
         modifier = Modifier
             .padding(start = 32.dp,top = 2.dp)

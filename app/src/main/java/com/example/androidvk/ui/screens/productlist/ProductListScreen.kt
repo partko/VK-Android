@@ -76,7 +76,11 @@ fun ChipsRow(
     val categories by remember { viewModel.categories }
     val scrollState = rememberScrollState()
     Row (modifier = Modifier.horizontalScroll(scrollState)) {
-        ChipGroupCompose(categories, viewModel = viewModel)
+        ChipGroupCompose(
+            chipList = categories,
+            viewModel = viewModel,
+            selectedChip = viewModel.selectedChip
+        )
     }
 }
 
@@ -90,7 +94,7 @@ fun ProductList(
     val loadError by remember { viewModel.loadError }
     val isLoading by remember { viewModel.isLoading }
     val isSearching by remember { viewModel.isSearching }
-    val isCategory by remember { viewModel.isCategory }
+    val isCategory by remember { viewModel.isCategorySelected }
 
     LazyColumn(contentPadding = PaddingValues(16.dp)) {
         val itemCount = if(productList.size % 2 == 0) {

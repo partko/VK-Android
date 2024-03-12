@@ -1,7 +1,10 @@
 package com.example.androidvk.ui.screens.productlist
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -28,8 +31,9 @@ class ProductListViewModel @Inject constructor(
     private var cachedProductList = listOf<ProductEntity>()
     private var isSearchStarting = true
     var isSearching = mutableStateOf(false)
+    var isCategorySelected = mutableStateOf(false)
 
-    var isCategory = mutableStateOf(false)
+    var selectedChip = mutableStateOf("")
 
     init {
         loadCategories()
@@ -38,8 +42,7 @@ class ProductListViewModel @Inject constructor(
 
     private fun loadCategories() {
         viewModelScope.launch {
-            val result = repository.getCategories()
-            when(result) {
+            when(val result = repository.getCategories()) {
                 is Resource.Success -> {
                     categories.value = result.data!!
                     loadError.value = ""
@@ -54,12 +57,13 @@ class ProductListViewModel @Inject constructor(
 
     fun loadCategory(category: String) {
         viewModelScope.launch {
-            if (!isCategory.value) {
+            if (!isCategorySelected.value && !isSearching.value) {
                 cachedProductList = productList.value
             }
-            isCategory.value = true
-            val result = repository.getCategory(category)
-            when(result) {
+            isSearching.value = false
+            isSearchStarting = true
+            isCategorySelected.value = true
+            when(val result = repository.getCategory(category)) {
                 is Resource.Success -> {
                     val products = result.data!!.products
                     loadError.value = ""
@@ -74,22 +78,21 @@ class ProductListViewModel @Inject constructor(
 
     fun cancelCategory() {
         productList.value = cachedProductList
-        isCategory.value = false
+        isCategorySelected.value = false
     }
 
     fun loadProductsPaginated() {
         viewModelScope.launch {
             isLoading.value = true
-            val result = repository.getProductList(curPage * PAGE_SIZE, PAGE_SIZE)
-            when(result) {
+            when(val result = repository.getProductList(curPage * PAGE_SIZE, PAGE_SIZE)) {
                 is Resource.Success -> {
                     //endReached.value = curPage * PAGE_SIZE >= result.data!!.products!!.get(result.data.products.lastIndex)!!.id
-                    endReached.value =  if (result.data!!.products.isEmpty()) true else false
+                    endReached.value = result.data!!.products.isEmpty()
                     Log.d("debug", "endReached ${endReached.value}")
                     if (endReached.value) return@launch
                     if(result.data.products.isNotEmpty()) {
                         Log.d("debug", "${result.data}")
-                        Log.d("debug", "${result.data.products[result.data.products.lastIndex].id}")
+                        Log.d("debug", "lastID ${result.data.products[result.data.products.lastIndex].id}")
                         Log.d("debug", "curPage $curPage")
                     }
 
@@ -111,24 +114,28 @@ class ProductListViewModel @Inject constructor(
     fun searchProducts(searchText: String) {
         Log.d("debug", "searchText $searchText")
         isSearching.value = true
+        if (isCategorySelected.value) {
+            selectedChip.value = ""
+            cancelCategory()
+        }
+
         if (searchText == "") {
             isSearching.value = false
             productList.value = cachedProductList
             isSearchStarting = true
         } else {
             if (isSearchStarting) {
-                if(!isCategory.value) {
+                if(!isCategorySelected.value) {
                     cachedProductList = productList.value
                 }
                 isSearchStarting = false
             }
             viewModelScope.launch {
-                val result = repository.searchProduct(searchText)
-                when(result) {
+                when(val result = repository.searchProduct(searchText)) {
                     is Resource.Success -> {
                         if(result.data!!.products.isNotEmpty()) {
                             Log.d("debug", "${result.data}")
-                            Log.d("debug", "${result.data.products[result.data.products.lastIndex].id}")
+                            Log.d("debug", "lastID ${result.data.products[result.data.products.lastIndex].id}")
                             Log.d("debug", "curPage $curPage")
                         }
 
